@@ -1,0 +1,13 @@
+# Arquivos de compilação do Cabal e Stack
+dist-newstyle/
+.stack-work/
+.cabal-sandbox/
+cabal.sandbox.config
+
+# Arquivos de log e do sistema
+*.log
+.DS_Store
+Thumbs.db
+
+# Variáveis de ambiente locais (senhas de banco de dados)
+.env

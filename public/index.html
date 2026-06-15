@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wiki Genuriamverse</title>
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <style>
+        body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; margin: 0; background-image: url('fundo.jpg'); background-size: cover; background-attachment: fixed; background-position: center; color: #e0e0e0; scroll-behavior: smooth; }
+        .fandom-nav { background-color: #8b0000; display: flex; align-items: center; padding: 0 20px; border-bottom: 3px solid #f1c40f; box-shadow: 0 4px 8px rgba(0,0,0,0.5); }
+        .wiki-logo { max-height: 90px; width: auto; cursor: pointer; margin-right: 40px; transition: transform 0.2s; padding: 5px 0; }
+        .wiki-logo:hover { transform: scale(1.05); }
+        .nav-menu { list-style: none; padding: 0; margin: 0; display: flex; }
+        .nav-menu > li { position: relative; }
+        .nav-menu > li > a { display: block; padding: 20px 15px; color: #ffffff; text-decoration: none; font-weight: bold; font-size: 14px; text-transform: uppercase; text-shadow: 1px 1px 2px rgba(0,0,0,0.5); }
+        .nav-menu > li > a:hover { background-color: rgba(0,0,0,0.3); color: #f1c40f; }
+        
+        .dropdown-content { display: none; position: absolute; background-color: #111; min-width: 220px; box-shadow: 0px 8px 16px rgba(0,0,0,0.8); z-index: 100; top: 100%; left: 0; padding: 0; margin: 0; list-style: none; border-top: 2px solid #f1c40f; }
+        .nav-menu > li:hover .dropdown-content { display: block; }
+        .dropdown-content li { position: relative; }
+        .dropdown-content li a { display: block; padding: 12px 16px; color: #ccc; text-decoration: none; border-bottom: 1px solid #222; font-size: 14px; text-shadow: none; }
+        .dropdown-content li a:hover { background-color: #222; color: #f1c40f; }
+        
+        .submenu-content { display: none; position: absolute; top: 0; left: 100%; background-color: #151515; min-width: 220px; box-shadow: 8px 8px 16px rgba(0,0,0,0.9); z-index: 105; padding: 0; margin: 0; list-style: none; border-left: 2px solid #f1c40f; }
+        .dropdown-content li.has-submenu:hover > .submenu-content { display: block; }
+        .dropdown-content li.has-submenu > a::after { content: " ▸"; float: right; color: #f1c40f; font-size: 12px; }
+
+        .container { max-width: 1100px; margin: 40px auto; background: rgba(18, 18, 18, 0.95); padding: 40px; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.8); min-height: 500px; border: 1px solid #333; }
+        .tela { display: none; }
+        .tela.ativa { display: block; }
+        
+        .form-row { display: flex; gap: 20px; margin-bottom: 30px; }
+        .form-group { flex: 1; background: #1a1a1a; padding: 15px; border-radius: 4px; border: 1px solid #333; }
+        input, select { width: 100%; padding: 10px; margin-top: 5px; margin-bottom: 10px; border: 1px solid #444; border-radius: 4px; font-family: inherit; box-sizing: border-box; background: #2a2a2a; color: white; }
+        button { background-color: #b30000; color: white; border: none; padding: 10px 15px; font-weight: bold; cursor: pointer; border-radius: 4px; font-size: 13px; transition: background 0.2s; }
+        button:hover { background-color: #e74c3c; }
+        
+        .historico { font-size: 12px; color: #999; margin-top: 30px; border-top: 1px solid #333; padding-top: 10px; }
+        #artigo-conteudo img { border-radius: 4px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); transition: transform 0.2s; max-width: 100%; cursor: zoom-in; }
+        #artigo-conteudo img:hover { transform: scale(1.01); filter: brightness(1.1); }
+        
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; justify-content: center; align-items: center; flex-direction: column; }
+        .modal-overlay.ativo { display: flex; }
+        .modal-content { max-width: 90%; max-height: 80%; border: 2px solid #555; box-shadow: 0 0 30px rgba(0,0,0,1); }
+        .modal-fechar { position: absolute; top: 20px; right: 30px; color: white; font-size: 40px; cursor: pointer; font-weight: bold; }
+        .modal-rodape { margin-top: 15px; color: white; text-align: center; }
+        .modal-rodape a { color: #f1c40f; text-decoration: none; font-weight: bold; padding: 10px; display: inline-block; border: 1px solid #f1c40f; border-radius: 4px; margin-top: 5px; transition: background 0.2s; }
+        .modal-rodape a:hover { background-color: #f1c40f; color: black; }
+        
+        .toc-container { background-color: #1a1a1a; border: 1px solid #444; padding: 10px 15px; margin-bottom: 25px; display: table; min-width: 250px; border-radius: 4px; }
+        .toc-titulo { font-weight: bold; text-align: center; margin-bottom: 10px; font-size: 15px; color: #fff; }
+        .toc-lista { list-style: none; padding-left: 0; margin: 0; font-size: 14px; }
+        .toc-lista li { margin-bottom: 6px; }
+        .toc-lista a { color: #f1c40f; text-decoration: none; } 
+        .toc-lista a:hover { text-decoration: underline; }
+        
+        .ql-snow .ql-toolbar button.ql-divider::after { content: "—"; font-weight: bold; font-size: 16px; color: #444; }
+        #artigo-conteudo hr { border: 0; border-top: 1px solid #444; margin: 20px 0; }
+
+        .admin-list { list-style: none; padding: 0; margin-top: 10px; }
+        .admin-list li { display: flex; justify-content: space-between; align-items: center; padding: 8px; border-bottom: 1px solid #333; font-size: 14px; }
+        .btn-delete-vermelho { background-color: #8b0000; }
+        .btn-delete-vermelho:hover { background-color: #ff3333; }
+        .btn-verde { background-color: #27ae60; }
+        .btn-verde:hover { background-color: #2ecc71; }
+
+        .history-item { padding: 12px; border: 1px solid #333; border-radius: 4px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; background: #1a1a1a; }
+        .history-item-global:hover { background-color: #2a2a2a; border-color: #555; cursor: pointer; }
+        .diff-positivo { color: #2ecc71; font-weight: bold; font-family: monospace; }
+        .diff-negativo { color: #e74c3c; font-weight: bold; font-family: monospace; }
+        .diff-neutro { color: #95a5a6; font-weight: bold; font-family: monospace; }
+
+        /* ==========================================
+           NOVA INFOBOX (TIPO FANDOM WIKI)
+           ========================================== */
+        .fandom-infobox {
+            float: right; /* Flutua a tabela para a direita do texto */
+            width: 320px;
+            background: #151515;
+            border: 2px solid #8b0000; /* Borda vermelha igual à sua imagem */
+            border-radius: 6px;
+            margin: 0 0 20px 25px;
+            padding: 12px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.8);
+        }
+        .infobox-title {
+            background: #8b0000;
+            color: #f1c40f;
+            text-align: center;
+            padding: 10px;
+            margin: -12px -12px 12px -12px;
+            border-radius: 4px 4px 0 0;
+            font-size: 18px;
+            text-transform: uppercase;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.5);
+        }
+        .infobox-img-container img {
+            width: 100%;
+            height: auto;
+            border-radius: 4px;
+            display: block;
+            border: 1px solid #333;
+        }
+        .infobox-tabs {
+            display: flex;
+            gap: 5px;
+            margin-top: 8px;
+            margin-bottom: 12px;
+        }
+        .infobox-tabs button {
+            flex: 1;
+            padding: 6px;
+            background: #2a2a2a;
+            color: #ccc;
+            font-size: 12px;
+            border: 1px solid #444;
+            border-radius: 3px;
+        }
+        .infobox-tabs button:hover { background: #f1c40f; color: black; font-weight: bold; }
+        .infobox-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        .infobox-table th {
+            text-align: left;
+            padding: 8px 5px;
+            border-bottom: 1px solid #333;
+            color: #f1c40f;
+            width: 40%;
+            vertical-align: top;
+        }
+        .infobox-table td {
+            padding: 8px 5px;
+            border-bottom: 1px solid #333;
+            color: #ddd;
+            line-height: 1.4;
+        }
+
+        /* Campos da tela de edição da Infobox */
+        .infobox-campo-row { display: flex; gap: 5px; margin-bottom: 5px; }
+        .infobox-campo-row input { margin: 0; padding: 8px; font-size: 13px; }
+        .btn-add-info { background: #34495e; width: 100%; margin-top: 10px; padding: 8px; }
+        .btn-add-info:hover { background: #2c3e50; }
+    </style>
+</head>
+<body>
+
+    <nav class="fandom-nav">
+        <img src="logo.png" alt="Wiki Genuriamverse Logo" class="wiki-logo" onclick="window.location.hash = ''">
+        <ul class="nav-menu" id="menu-dinamico"><li><a href="#">Carregando...</a></li></ul>
+        <ul class="nav-menu" style="margin-left: auto;"><li><a href="#admin" style="color: #f1c40f;">+ PAINEL ADMIN</a></li></ul>
+    </nav>
+
+    <div class="container">
+        <div id="tela-home" class="tela ativa" style="text-align: center;">
+            <h2 style="color: #f1c40f; margin-bottom: 25px; line-height: 1.4; font-size: 24px; text-shadow: 2px 2px 4px rgba(0,0,0,0.6);">Bem vindo a Genuriamverse wiki, uma wiki que reune todas as informações dos universos ficticios criados pelo autor: Genilgames</h2>
+            <p style="color: #ffffff; font-size: 16px; line-height: 1.6; max-width: 850px; margin: 0 auto 40px auto; text-shadow: 1px 1px 3px rgba(0,0,0,0.5);">Genuriamverse é um nome dado para o "multiverso" de todas as obras escritas por genilgames, mesmo que elas não tenham conexão direta umas com as outras</p>
+            <img src="logo.png" alt="Capa Genuriamverse" style="max-width: 100%; width: 550px; height: auto; margin: 0 auto 50px auto; display: block; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.9); transition: transform 0.3s;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+            <div style="margin-top: 20px; padding: 25px; background: #1a1a1a; border-left: 5px solid #b30000; border-radius: 4px; text-align: left; border: 1px solid #2d2d2d;">
+                <h3 style="margin-top: 0; color: #e74c3c;">Atividade da Comunidade</h3>
+                <p style="color: #aaa; margin-bottom: 20px;">Acompanhe o painel de histórico geral para ver quais artigos da Wiki foram criados, atualizados ou expandidos recentemente.</p>
+                <button onclick="window.location.hash = '#mudancas'" style="background-color: #b30000; font-size: 15px;">Ir para Mudanças Recentes ➔</button>
+            </div>
+        </div>
+
+        <div id="tela-mudancas" class="tela">
+            <button onclick="window.history.back()" style="background-color: #333; margin-bottom: 20px;">⬅ Voltar</button>
+            <h2 style="border-bottom: 2px solid #b30000; padding-bottom: 10px; color: #fff;">Mudanças Recentes</h2>
+            <div id="home-historico-lista" style="margin-top: 20px;"><em>Carregando...</em></div>
+        </div>
+
+        <div id="tela-artigo" class="tela">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #b30000; padding-bottom: 10px; margin-bottom: 20px;">
+                <h2 id="artigo-titulo" style="margin: 0; color: #fff;">Título</h2>
+                <div style="display: flex; gap: 8px;">
+                    <button id="btn-editar-artigo" onclick="ativarModoEdicao()" style="background-color: #f39c12; color: black;">✏️ Editar</button>
+                    <button id="btn-historico-artigo" onclick="carregarHistoricoArtigo()" style="background-color: #333;">📜 Histórico</button>
+                </div>
+            </div>
+            
+            <div id="modo-leitura">
+                <div id="artigo-indice" class="toc-container" style="display: none;"></div>
+                <div id="artigo-conteudo" style="line-height: 1.6; font-size: 16px; color: #ddd;">Carregando...</div>
+                <div class="historico" id="artigo-historico">Versão atual: --</div>
+            </div>
+
+            <div id="modo-edicao" style="display: none;">
+                <h3 style="margin-top: 0; color: #e74c3c;">Modo de Edição</h3>
+                <form id="form-revisao">
+                    <div style="display: flex; gap: 20px; align-items: flex-start;">
+                        <div style="flex: 2.5;">
+                            <div id="editor-container" style="height: 500px; background: white; color: black; border-radius: 4px;"></div>
+                        </div>
+                        
+                        <div style="flex: 1; background: #151515; padding: 15px; border-radius: 4px; border: 1px solid #333; position: sticky; top: 10px;">
+                            <h4 style="color: #f1c40f; margin-top: 0; text-align: center;">⚙️ Tabela de Informação</h4>
+                            <p style="font-size: 12px; color: #aaa; margin-bottom: 15px;">A tabela ficará no canto direito da página automaticamente.</p>
+                            
+                            <label style="font-size: 13px; color: #ccc;">Título da Tabela:</label>
+                            <input type="text" id="info-titulo" placeholder="Ex: Goku, O Sayajin">
+                            
+                            <label style="font-size: 13px; color: #ccc;">Imagem Principal (URL):</label>
+                            <input type="text" id="info-img1" placeholder="http://...">
+                            
+                            <label style="font-size: 13px; color: #ccc;">Imagem Alternativa (Opcional):</label>
+                            <input type="text" id="info-img2" placeholder="http://... (Cria as abas)">
+                            
+                            <hr style="border: 0; border-top: 1px dashed #444; margin: 15px 0;">
+                            
+                            <label style="font-size: 13px; color: #f1c40f; font-weight: bold;">Atributos e Detalhes:</label>
+                            <div id="infobox-campos" style="margin-top: 10px;">
+                                </div>
+                            <button type="button" class="btn-add-info" onclick="adicionarCampoInfobox()">+ Adicionar Linha</button>
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; gap: 10px; margin-top: 20px; border-top: 1px solid #333; padding-top: 15px;">
+                        <button type="submit" style="background-color: #27ae60; font-size: 15px; padding: 12px 20px;">💾 Salvar Tudo</button>
+                        <button type="button" onclick="cancelarEdicao()" style="background-color: #555; font-size: 15px; padding: 12px 20px;">❌ Cancelar</button>
+                    </div>
+                </form>
+            </div>
+
+            <div id="modo-historico" style="display: none;">
+                <h3 style="margin-top: 0; color: #fff;">Histórico de Alterações da Página</h3>
+                <div id="historico-lista-container" style="margin: 20px 0;"></div>
+                <button type="button" onclick="cancelarEdicao()" style="background-color: #555;">Voltar para Leitura</button>
+            </div>
+        </div>
+
+        <div id="tela-admin" class="tela">
+            <h2 style="color: #fff;">Painel Administrativo da Wiki</h2>
+            <div class="form-row">
+                <div class="form-group">
+                    <h3 style="color: #e0e0e0;">Nova Categoria</h3>
+                    <form id="form-categoria">
+                        <input type="text" id="cat-nome" placeholder="Nome da Categoria" required>
+                        <input type="text" id="cat-desc" placeholder="Descrição rápida">
+                        <select id="cat-pai"><option value="">Nenhuma (Criar como Categoria Principal)</option></select>
+                        <button type="submit">Salvar Categoria</button>
+                    </form>
+                </div>
+                <div class="form-group">
+                    <h3 style="color: #e0e0e0;">Novo Artigo</h3>
+                    <form id="form-artigo">
+                        <input type="text" id="art-titulo" placeholder="Título do Artigo" required>
+                        <select id="art-categoria" required><option value="">Carregando...</option></select>
+                        <button type="submit">Criar Artigo</button>
+                    </form>
+                </div>
+            </div>
+
+            <h2 style="color: #fff; margin-top: 40px;">Gerenciamento e Lixeira (Soft Delete)</h2>
+            <div class="form-row">
+                <div class="form-group"><h3 style="color: #e0e0e0;">Categorias Ativas</h3><ul id="admin-lista-categorias" class="admin-list"></ul></div>
+                <div class="form-group"><h3 style="color: #e0e0e0;">Artigos Ativos</h3><ul id="admin-lista-artigos" class="admin-list"></ul></div>
+                <div class="form-group" style="border: 1px dashed #e74c3c; background: #2a0a0a;"><h3 style="color: #ff6666;">Lixeira de Artigos 🗑️</h3><ul id="admin-lixeira-artigos" class="admin-list"></ul></div>
+            </div>
+        </div>
+
+        <div id="tela-imagem" class="tela">
+            <button onclick="window.history.back()" style="background-color: #555; margin-bottom: 20px;">⬅ Voltar</button>
+            <h2 id="pagina-imagem-titulo" style="border-bottom: 2px solid #b30000; padding-bottom: 10px; color: #fff;">Detalhes da Imagem</h2>
+            <div style="text-align: center; background: #1a1a1a; border: 1px solid #333; padding: 20px; border-radius: 4px; margin-top: 20px;">
+                <img id="pagina-imagem-tag" src="" style="max-width: 100%; border: 1px solid #000; box-shadow: 0 4px 15px rgba(0,0,0,0.8);">
+            </div>
+        </div>
+
+    <div id="modal-imagem" class="modal-overlay">
+        <span class="modal-fechar" onclick="fecharModal()">&times;</span><img id="modal-img-tag" class="modal-content" src="">
+        <div class="modal-rodape"><a href="#" id="modal-link-detalhes">Ver Página Própria da Imagem ➔</a></div>
+    </div>
+
+    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
