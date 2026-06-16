@@ -1,15 +1,16 @@
-# Agora que o seu .cabal permite (base < 5), usamos o Haskell 9.6 (com Linux moderno)
-FROM haskell:9.6
+# Usa a família 9.4 (que o seu código aceita), mas com um Linux atualizado nos bastidores do Render
+FROM haskell:9.4
 
 WORKDIR /app
 
-# Como o Linux aqui é moderno, o comando simples volta a funcionar perfeitamente!
+# O Linux atualizado aceita este comando sem o erro 404
 RUN apt-get update && apt-get install -y libpq-dev
 
 COPY . .
 
 RUN cabal update
-RUN cabal build
+# A flag --allow-newer é o nosso "escudo" para impedir que o Cabal bloqueie a compilação por limites de versão
+RUN cabal build --allow-newer
 
 EXPOSE 8080
 
