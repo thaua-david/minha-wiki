@@ -78,7 +78,6 @@ executable Projeto-Garcia
                       wai,
                       warp,
                       postgresql-simple,
-                      postgresql-libpq < 0.11,
                       text,
                       time,
                       aeson,
