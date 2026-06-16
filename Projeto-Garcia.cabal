@@ -78,6 +78,7 @@ executable Projeto-Garcia
                       wai,
                       warp,
                       postgresql-simple,
+                      bytestring,
                       text,
                       time,
                       aeson,
